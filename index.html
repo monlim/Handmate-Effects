@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <title>Hand Tracking with Audio Effects</title>
+  <link rel="stylesheet" type="text/css" href="appstyle.css">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.31/Tone.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <video class="input_video"></video>
+    <div class="canvas-container">
+    <canvas class="output_canvas" width="1280px" height="720px"></canvas>
+    </div>
+  </div>
+  <div class="view">
+    <button onclick="toggleControl()" id="controlButton">Hide controls</button>
+  </div>
+  <div class="control-panel">
+    <br><br>
+    
+    Selfie view <input id="selfie" type="checkbox" checked="checked">
+    Show tracking <input id="showTracking" type="checkbox" checked="checked">
+    Fps <span id="fps"></span>
+    <hr>
+   
+    <b>Mic Input</b><div class="tooltip circle"><sup><i>i</i></sup>
+      <span class="tooltiptext">Choose mic input from your computer sound preferences</span>
+      </div><br>
+
+    Mic on<input id="openMic" type="checkbox">
+    <input type="range" id="micPreamp" name="micPreamp" min="0" max="12" value="6">
+      <label for="micPreamp">Vol</label>
+      <span id="micPreampValue" class="rangeValue">6.0</span><br>
+      Audio effects<div class="tooltip circle"><sup><i>i</i></sup>
+      <span class="tooltiptext">Turn on/off automated audio effects on mic input</span>
+      </div>
+      <input id="micAudioEffects" type="checkbox" checked="checked">
+    <hr>
+    <b>Record Loop</b><div class="tooltip circle"><sup><i>i</i></sup>
+      <span class="tooltiptext">Turn on mic to record your own sound into buffer</span>
+      </div><br>
+    <input id="startRecord" type="button" value="Start record"> <input id="stopRecord" type="button" value="Stop record"><br>
+    Play loop <input id="playLoop" type="checkbox">Audio effects<div class="tooltip circle"><sup><i>i</i></sup>
+      <span class="tooltiptext">Turn on/off automated audio effects on loop</span>
+      </div>
+      <input id="loopAudioEffects" type="checkbox" checked="checked"><br>
+    <hr>
+   <b>Upload File</b><div class="tooltip circle"><sup><i>i</i></sup>
+      <span class="tooltiptext">Upload your own .wav, .mp3, .aiff or .ogg file</span>
+      </div>
+      <input type="file" id="file-selector" accept="audio/*"><br>
+    Play file<input id="playFile" type="checkbox">Audio effects<div class="tooltip circle"><sup><i>i</i></sup>
+      <span class="tooltiptext">Turn on/off automated audio effects on loop</span>
+      </div>
+      <input id="fileAudioEffects" type="checkbox" checked="checked"><br>
+    <hr>
+    <b>Audio Effects</b><div class="tooltip circle"><sup><i>i</i></sup>
+      <span class="tooltiptext">Tick box to apply effect and choose automated control. Index refers to the tip of index finger. For best results, face camera in sufficient light with upper body (chest till top of head) visible.</span></div><br>
+    <div class="checkboxes">  
+      <b>Pitchshift</b><div class="tooltip circle"><sup><i>i</i></sup>
+      <span class="tooltiptext">One octave above and below original pitch</span>
+      </div><br>
+      Effect on/off<input id="pitchShiftCheck" type="checkbox">
+      Automatic on/off<div class="tooltip circle"><sup><i>i</i></sup>
+      <span class="tooltiptext">Choose gesture to turn on/off effect automatically. Effect will be on as long as gesture is held. To control manually, select ------</span>
+      </div><label class="label"
+      for="pitchShiftAutomaticInput"></label>
+        <select name="pitchShiftAutomaticInput" id="pitchShiftAutomaticInput">
+          <option value="nil" selected>-------</option>
+          <option value="leftThumb">Left thumbs up</option>
+          <option value="leftVictory">Left victory</option>
+          <option value="rightThumb">Right thumbs up</option>
+          <option value="rightVictory">Right victory</option>
+        </select><br> 
+
+      Pitchshift freq controlled by<label class="label"
+      for="pitchShiftControlInput"></label>
+        <select name="pitchShiftControlInput" id="pitchShiftControlInput">
+          <option value="nil">-------</option>
+          <option value="leftIndexX">Left index x</option>
+          <option value="leftIndexY" selected>Left index y</option>
+          <option value="leftClosed">Left hand closed</option>
+          <option value="rightIndexX">Right index x</option>
+          <option value="rightIndexY">Right index y</option>
+          <option value="rightClosed">Right hand closed</option>
+          <option value="indexDistance">Index distance</option>
+        </select><br>
+
+      <b>Distortion</b><br>
+      Effect on/off<input id="distortionCheck" type="checkbox">
+      Automatic on/off<div class="tooltip circle"><sup><i>i</i></sup>
+      <span class="tooltiptext">Choose gesture to turn on/off effect automatically. Effect will be on as long as gesture is held. To control manually, select ------</span>
+      </div><label class="label"
+      for="distAutomaticInput"></label>
+        <select name="distAutomaticInput" id="distAutomaticInput">
+          <option value="nil" selected>-------</option>
+          <option value="leftThumb">Left thumbs up</option>
+          <option value="leftVictory">Left victory</option>
+          <option value="rightThumb">Right thumbs up</option>
+          <option value="rightVictory">Right victory</option>
+        </select><br> 
+      Distortion mix controlled by<label class="label"
+      for="distControlInput"></label>
+        <select name="distControlInput" id="distControlInput">
+          <option value="nil">-------</option>
+          <option value="leftIndexX">Left index x</option>
+          <option value="leftIndexY">Left index y</option>
+          <option value="leftClosed">Left hand closed</option>
+          <option value="rightIndexX" selected>Right index x</option>
+          <option value="rightIndexY">Right index y</option>
+          <option value="rightClosed">Right hand closed</option>
+          <option value="indexDistance">Index distance</option>
+        </select><br>
+      <input type="range" id="distWet" name="distWet" min="0" max="1" value="0" step="0.01">
+      <label for="distWet">Mix</label>
+      <span id="distWetValue" class="rangeValue">0.0</span><br>
+      
+      <b>Reverb</b><br>
+      Effect on/off<input id="reverbCheck" type="checkbox">
+      Automatic on/off<div class="tooltip circle"><sup><i>i</i></sup>
+      <span class="tooltiptext">Choose gesture to turn on/off effect automatically. Effect will be on as long as gesture is held. To control manually, select ------</span>
+      </div><label class="label"
+      for="reverbAutomaticInput"></label>
+        <select name="reverbAutomaticInput" id="reverbAutomaticInput">
+          <option value="nil" selected>-------</option>
+          <option value="leftThumb">Left thumbs up</option>
+          <option value="leftVictory">Left victory</option>
+          <option value="rightThumb">Right thumbs up</option>
+          <option value="rightVictory">Right victory</option>
+        </select><br> 
+      Reverb mix controlled by<label class="label"
+      for="reverbControlInput"></label>
+        <select name="reverbControlInput" id="reverbControlInput">
+          <option value="nil">-------</option>
+          <option value="leftIndexX">Left index x</option>
+          <option value="leftIndexY">Left index y</option>
+          <option value="leftClosed">Left hand closed</option>
+          <option value="rightIndexX">Right index x</option>
+          <option value="rightIndexY">Right index y</option>
+          <option value="rightClosed">Right hand closed</option>
+          <option value="indexDistance" selected>Index distance</option>
+        </select><br>
+      <input type="range" id="reverbWet" name="reverbWet" min="0" max="1" value="0" step="0.01">
+      <label for="reverbWet">Mix</label>
+      <span id="reverbWetValue" class="rangeValue">0.0</span><br>
+      
+     <b>PingPong Delay</b><br>
+     Effect on/off<input id="pingPongCheck" type="checkbox">
+     Automatic on/off<div class="tooltip circle"><sup><i>i</i></sup>
+      <span class="tooltiptext">Choose gesture to turn on/off effect automatically. Effect will be on as long as gesture is held. To control manually, select ------</span>
+      </div>
+      <label class="label"
+      for="pingPongAutomaticInput"></label>
+        <select name="pingPongAutomaticInput" id="pingPongAutomaticInput">
+          <option value="nil" selected>-------</option>
+          <option value="leftThumb">Left thumbs up</option>
+          <option value="leftVictory">Left victory</option>
+          <option value="rightThumb">Right thumbs up</option>
+          <option value="rightVictory">Right victory</option>
+        </select><br>    
+      PingPong mix controlled by<label class="label"
+      for="pingPongControlInput"></label>
+        <select name="pingPongControlInput" id="pingPongControlInput">
+          <option value="nil">-------</option>
+          <option value="leftIndexX">Left index x</option>
+          <option value="leftIndexY">Left index y</option>
+          <option value="leftClosed" selected>Left hand closed</option>
+          <option value="rightIndexX">Right index x</option>
+          <option value="rightIndexY">Right index y</option>
+          <option value="rightClosed">Right hand closed</option>
+          <option value="IndexDistance">Index distance</option>
+        </select><br>
+      <input type="range" id="pingPongWet" name="pingPongWet" min="0" max="1" value="0" step="0.01">
+      <label for="pingPongWet">Mix</label>
+      <span id="pingPongWetValue" class="rangeValue">0.0</span><br>   
+  </div> 
+  <hr>
+    <b>Other Automated Controls</b><br>
+    <div class="checkboxes">  
+    Gain<div class="tooltip circle"><sup><i>i</i></sup>
+      <span class="tooltiptext">Tick to automate gain with movement</span>
+      </div>
+      <input id="gainCheck" type="checkbox" checked="checked">
+      <label class="label"
+      for="gainCheck"></label>
+        <select name="gainControlInput" id="gainControlInput">
+          <option value="leftIndexX">Left index x</option>
+          <option value="leftIndexY">Left index y</option>
+          <option value="leftClosed">Left hand closed</option>
+          <option value="rightIndexX">Right index x</option>
+          <option value="rightIndexY" selected>Right index y</option>
+          <option value="rightClosed">Right hand closed</option>
+          <option value="indexDistance">Index distance</option>
+        </select><br>
+      Playback rate<div class="tooltip circle"><sup><i>i</i></sup>
+      <span class="tooltiptext">Tick to automate playback rate of recorded or uploaded file between 0.2-4 times original speed. Playback rate will affect pitch.</span>
+      </div>
+      <input id="playbackRateCheck" type="checkbox" checked="checked">
+      <label class="label"
+      for="playerControlInput"></label>
+        <select name="playerControlInput" id="playerControlInput">
+          <option value="leftIndexX">Left index x</option>
+          <option value="leftIndexY">Left index y</option>
+          <option value="leftClosed">Left hand closed</option>
+          <option value="rightIndexX">Right index x</option>
+          <option value="rightIndexY">Right index y</option>
+          <option value="rightClosed">Right hand closed</option>
+          <option value="indexDistance"Index distance</option>
+        </select><br>
+  </div>      
+  <script type="text/javascript" src="fingerpose.js"></script>
+  <script type="text/javascript" src="script.js"></script>
+
+</body>
+</html>
