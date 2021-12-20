@@ -522,10 +522,10 @@ function myGesture(leftGesture, rightGesture){
 
 //Sound engine
 function myMusic(leftIndex, leftWrist, rightIndex, rightWrist){ 
-  if (! distortionCheck.checked) {dist.wet.value = 0};
+  if (! distortionCheck.checked) {dist.wet.value = 0; distWet.value = 0};
   if (! pitchShiftCheck.checked) {pitchShift.pitch = 0};
-  if (! pingPongCheck.checked) {pingPong.wet.value = 0};
-  if (! reverbCheck.checked) {reverb.wet.value = 0};
+  if (! pingPongCheck.checked) {pingPong.wet.value = 0; pingPongWet.value = 0};
+  if (! reverbCheck.checked) {reverb.wet.value = 0; reverbWet.value = 0};
   if (! gainCheck.checked) {gainNode.gain = 1};
   if (! playbackRateCheck.checked) {
     if (player2){player2.playbackRate = 1};
