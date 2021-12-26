@@ -769,11 +769,6 @@ function handleError(error) {
 }
 
 function start() {
-  if (window.stream) {
-    window.stream.getTracks().forEach(track => {
-      track.stop();
-    });
-  }
   const videoSource = videoSelect.value;
   const constraints = {
     video: {deviceId: videoSource ? {exact: videoSource} : undefined}
