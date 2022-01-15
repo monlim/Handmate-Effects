@@ -380,149 +380,48 @@ function reverbControl(controlValue) {
   reverbWetValue.innerHTML = reverb.wet.value.toFixed(2);
 };
 
-//Get user preferred controls
-const myDict = {gainDict: "rightIndexY", playerDict: "indexDistance", distDict: "rightIndexX", pitchShiftDict: "leftIndexY", reverbDict: "indexDistance", pingPongDict: "leftClosed"};
 
-gainControlInput.onchange = function(){
-  myDict.gainDict = gainControlInput.value;
-};
-
-playerControlInput.onchange = function(){
-  myDict.playerDict = playerControlInput.value;
-};
-
-distControlInput.onchange = function(){
-  myDict.distDict = distControlInput.value;
-};
-pitchShiftControlInput.onchange = function(){
-  myDict.pitchShiftDict = pitchShiftControlInput.value;
-};
-reverbControlInput.onchange = function(){
-  myDict.reverbDict = reverbControlInput.value;
-};
-pingPongControlInput.onchange = function(){
-  myDict.pingPongDict = pingPongControlInput.value;
-};
-
+let threshold  = 70;
+function now () {return new Date().getTime()};
+let gesture_io = [
+  {input:pitchShiftAutomaticInput,  output:pitchShiftCheck, status:0, lastAct:0, lastRelease:0},
+  {input:distAutomaticInput,        output:distortionCheck, status:0, lastAct:0, lastRelease:0},
+  {input:reverbAutomaticInput,      output:reverbCheck,     status:0, lastAct:0, lastRelease:0},
+  {input:pingPongAutomaticInput,    output:pingPongCheck,   status:0, lastAct:0, lastRelease:0},
+]; 
 function myGesture(leftGesture, rightGesture){
-  if (pitchShiftAutomaticInput.value === "leftThumb") {
-    if (leftGesture === "thumbs_up") {
-      pitchShiftCheck.checked = true
-    } else {
-      pitchShiftCheck.checked = false
+  let gestures = [];
+  if(leftGesture  === "thumbs_up") gestures.push("leftThumb");
+  if(leftGesture  === "victory")   gestures.push("leftVictory");
+  if(rightGesture === "thumbs_up") gestures.push("rightThumb"); 
+  if(rightGesture === "victory")   gestures.push("rightVictory");
+  gesture_io.forEach(io => {
+    if(gestures.indexOf(io.input.value)>-1){
+      io.lastRelease = 0;
+      io.lastAct = io.lastAct == 0 ? now() : io.lastAct;
+      if(io.lastAct !=0 && io.status == 0 && (now() - io.lastAct) > threshold){
+        io.status = 1;
+        io.output.checked = !io.output.checked;
+      }
+    }else{
+      io.lastAct = 0;
+      io.lastRelease = io.lastRelease == 0 ? now() : io.lastRelease;
+      if(io.lastRelease !=0 && io.status == 1 && (now() - io.lastRelease) > threshold){
+        io.status = 0;
+      }
     }
-  }
-  else if (pitchShiftAutomaticInput.value === "leftVictory") {
-    if (leftGesture === "victory") {
-      pitchShiftCheck.checked = true
-    } else {
-      pitchShiftCheck.checked = false
-    }
-  }
-  else if (pitchShiftAutomaticInput.value === "rightThumb") {
-    if (rightGesture === "thumbs_up") {
-      pitchShiftCheck.checked = true
-    } else {
-      pitchShiftCheck.checked = false
-    }
-  }
-  else if (pitchShiftAutomaticInput.value === "rightVictory") {
-    if (rightGesture === "victory") {
-      pitchShiftCheck.checked = true
-    } else {
-      pitchShiftCheck.checked = false
-    }
-  };
-
-  if (distAutomaticInput.value === "leftThumb") {
-    if (leftGesture === "thumbs_up") {
-      distortionCheck.checked = true
-    } else {
-      distortionCheck.checked = false
-    }
-  }
-  else if (distAutomaticInput.value === "leftVictory") {
-    if (leftGesture === "victory") {
-      distortionCheck.checked = true
-    } else {
-      distortionCheck.checked = false
-    }
-  }
-  else if (distAutomaticInput.value === "rightThumb") {
-    if (rightGesture === "thumbs_up") {
-      distortionCheck.checked = true
-    } else {
-      distortionCheck.checked = false
-    }
-  }
-  else if (distAutomaticInput.value === "rightVictory") {
-    if (rightGesture === "victory") {
-      distortionCheck.checked = true
-    } else {
-      distortionCheck.checked = false
-    }
-  };
-
-  if (reverbAutomaticInput.value === "leftThumb") {
-    if (leftGesture === "thumbs_up") {
-      reverbCheck.checked = true
-    } else {
-      reverbCheck.checked = false
-    }
-  }
-  else if (reverbAutomaticInput.value === "leftVictory") {
-    if (leftGesture === "victory") {
-      reverbCheck.checked = true
-    } else {
-      reverbCheck.checked = false
-    }
-  }
-  else if (reverbAutomaticInput.value === "rightThumb") {
-    if (rightGesture === "thumbs_up") {
-      reverbCheck.checked = true
-    } else {
-      reverbCheck.checked = false
-    }
-  }
-  else if (reverbAutomaticInput.value === "rightVictory") {
-    if (rightGesture === "victory") {
-      reverbCheck.checked = true
-    } else {
-      reverbCheck.checked = false
-    }
-  };
-
-  if (pingPongAutomaticInput.value === "leftThumb") {
-    if (leftGesture === "thumbs_up") {
-      pingPongCheck.checked = true
-    } else {
-      pingPongCheck.checked = false
-    }
-  }
-  else if (pingPongAutomaticInput.value === "leftVictory") {
-    if (leftGesture === "victory") {
-      pingPongCheck.checked = true
-    } else {
-      pingPongCheck.checked = false
-    }
-  }
-  else if (pingPongAutomaticInput.value === "rightThumb") {
-    if (rightGesture === "thumbs_up") {
-      pingPongCheck.checked = true
-    } else {
-      pingPongCheck.checked = false
-    }
-  }
-  else if (pingPongAutomaticInput.value === "rightVictory") {
-    if (rightGesture === "victory") {
-      pingPongCheck.checked = true
-    } else {
-      pingPongCheck.checked = false
-    }
-  };
+  });
 };
 
-//Sound engine
+//sound engine
+let effects_io = [
+  {input:gainControlInput,        output:gainControl,           checkbox:gainCheck},
+  {input:playerControlInput,      output:playerControl,         checkbox:playbackRateCheck},
+  {input:distControlInput,        output:distortionControl,     checkbox:distortionCheck},
+  {input:pitchShiftControlInput,  output:pitchShiftControl,     checkbox:pitchShiftCheck},
+  {input:reverbControlInput,      output:reverbControl,         checkbox:reverbCheck},
+  {input:pingPongControlInput,    output:pingPongControl,       checkbox:pingPongCheck},
+];
 function myMusic(leftIndex, leftWrist, rightIndex, rightWrist){ 
   if (! distortionCheck.checked) {dist.wet.value = 0; distWet.value = 0};
   if (! pitchShiftCheck.checked) {pitchShift.pitch = 0};
@@ -532,105 +431,15 @@ function myMusic(leftIndex, leftWrist, rightIndex, rightWrist){
   if (! playbackRateCheck.checked) {
     if (player2){player2.playbackRate = 1};
     if (player){player.playbackRate = 1}};
-  if (leftIndex){
-    let leftIndexX = leftIndex.x;
-    let leftIndexY = 1 - leftIndex.y; //inverse so more effect if hand higher
-    let leftWristX = leftWrist.x;
-    let leftWristY = 1 - leftWrist.y;
-    let leftClose = scaleValue((Math.sqrt(((leftIndexX - leftWristX)**2)+((leftIndexY - leftWristY)**2))), [0.1, 0.4], [1, 0]); //0.4 - 0.1
-    if (gainCheck.checked){
-      if (myDict.gainDict === "leftIndexX"){gainControl(leftIndexX)}
-      else if (myDict.gainDict === "leftIndexY"){gainControl(leftIndexY)}
-      else if (myDict.gainDict === "leftClosed"){gainControl(leftClose)}
-      };
-    if (playbackRateCheck.checked){
-      if (myDict.playerDict === "leftIndexX"){playerControl(leftIndexX)}
-      else if (myDict.playerDict === "leftIndexY"){playerControl(leftIndexY)}
-      else if (myDict.playerDict === "leftClosed"){playerControl(leftClose)}
-      };
-    if (distortionCheck.checked) {
-      if (myDict.distDict === "leftIndexX"){distortionControl(leftIndexX)}
-      else if (myDict.distDict === "leftIndexY"){distortionControl(leftIndexY)}
-      else if (myDict.distDict === "leftClosed"){distortionControl(leftClose)}
-      };
-    if (pitchShiftCheck.checked) {
-      if (myDict.pitchShiftDict === "leftIndexX"){pitchShiftControl(leftIndexX)}
-      else if (myDict.pitchShiftDict === "leftIndexY"){pitchShiftControl(leftIndexY)}
-      else if (myDict.pitchShiftDict === "leftClosed"){pitchShiftControl(leftClose)}
-      };
-    if (reverbCheck.checked) {
-      if (myDict.reverbDict === "leftIndexX"){reverbControl(leftIndexX)}
-      else if (myDict.reverbDict === "leftIndexY"){reverbControl(leftIndexY)}
-      else if (myDict.reverbDict === "leftClosed"){reverbControl(leftClose)}
-    };
-    if (pingPongCheck.checked) {     
-      if (myDict.pingPongDict === "leftIndexX"){pingPongControl(leftIndexX)}
-      else if (myDict.pingPongDict === "leftIndexY"){pingPongControl(leftIndexY)}
-      else if (myDict.pingPongDict === "leftClosed"){pingPongControl(leftClose)}
-    };
-  };
-  if (rightIndex){
-    let rightIndexX = rightIndex.x;
-    let rightIndexY = 1 - rightIndex.y;
-    let rightWristX = rightWrist.x;
-    let rightWristY = 1 - rightWrist.y;
-    let rightClose = scaleValue((Math.sqrt(((rightIndexX - rightWristX)**2)+((rightIndexY - rightWristY)**2))), [0.1, 0.4], [1, 0]); //0.4 - 0.1
-    if (gainCheck.checked){
-      if (myDict.gainDict === "rightIndexX"){gainControl(rightIndexX)}
-      else if (myDict.gainDict === "rightIndexY"){gainControl(rightIndexY)}
-      else if (myDict.gainDict === "rightClosed"){gainControl(rightClose)}
-      };
-    if (playbackRateCheck.checked){
-      if (myDict.playerDict === "rightIndexX"){playerControl(rightIndexX)}
-      else if (myDict.playerDict === "rightIndexY"){playerControl(rightIndexY)}
-      else if (myDict.playerDict === "rightClosed"){playerControl(rightClose)}
-      };
-    if (distortionCheck.checked) {
-      if (myDict.distDict === "rightIndexX"){distortionControl(rightIndexX)}
-      else if (myDict.distDict === "rightIndexY"){distortionControl(rightIndexY)}
-      else if (myDict.distDict === "rightClosed"){distortionControl(rightClose)}
-      };
-    if (pitchShiftCheck.checked) {
-      if (myDict.pitchShiftDict === "rightIndexX"){pitchShiftControl(rightIndexX)}
-      else if (myDict.pitchShiftDict === "rightIndexY"){pitchShiftControl(rightIndexY)}
-      else if (myDict.pitchShiftDict === "rightClosed"){pitchShiftControl(rightClose)}
-      };
-    if (reverbCheck.checked) {
-      if (myDict.reverbDict === "rightIndexX"){reverbControl(rightIndexX)}
-      else if (myDict.reverbDict === "rightIndexY"){reverbControl(rightIndexY)}
-      else if (myDict.reverbDict === "rightClosed"){reverbControl(rightClose)}
-    };
-    if (pingPongCheck.checked) {     
-      if (myDict.pingPongDict === "rightIndexX"){pingPongControl(rightIndexX)}
-      else if (myDict.pingPongDict === "rightIndexY"){pingPongControl(rightIndexY)}
-      else if (myDict.pingPongDict === "rightClosed"){pingPongControl(rightClose)}
-    };
-  };
-  if (leftIndex && rightIndex){
-    let leftIndexX = leftIndex.x;
-    let leftIndexY = leftIndex.y;
-    let rightIndexX = rightIndex.x;
-    let rightIndexY = rightIndex.y;
-    let distance = Math.sqrt(((leftIndexX - rightIndexX)**2)+((leftIndexY - rightIndexY)**2));
-    if (gainCheck.checked) {
-      if (myDict.gainDict === "indexDistance"){gainControl(distance)};
-    };
-    if (playbackRateCheck.checked) {
-      if (myDict.playerDict === "indexDistance"){playerControl(distance)};
-    };
-    if (distortionCheck.checked) {
-      if (myDict.distDict === "indexDistance"){distortionControl(distance)};
-    };
-    if (pitchShiftCheck.checked) {
-      if (myDict.pitchShiftDict === "indexDistance"){pitchShiftControl(distance)};
-    };
-    if (reverbCheck.checked) {
-      if (myDict.reverbDict === "indexDistance"){reverbControl(distance)};  
-    };
-    if (pingPongCheck.checked) {
-      if (myDict.pingPongDict === "indexDistance"){pingPongControl(distance)};
-    };
-  };
+  effects_io.forEach(io => {
+    if(io.input.value === "leftIndexX" && leftIndex && io.checkbox.checked){io.output(leftIndex.x)};
+    if(io.input.value === "leftIndexY" && leftIndex && io.checkbox.checked){io.output((1 - leftIndex.y))};
+    if(io.input.value === "leftClosed" && leftIndex && io.checkbox.checked){io.output((scaleValue((Math.sqrt(((leftIndex.x - leftWrist.x)**2)+((leftIndex.y - leftWrist.y)**2))), [0.1, 0.4], [1, 0])))};
+    if(io.input.value === "rightIndexX" && rightIndex && io.checkbox.checked){io.output(rightIndex.x)};
+    if(io.input.value === "rightIndexY" && rightIndex && io.checkbox.checked){io.output((1-rightIndex.y))};
+    if(io.input.value === "rightClosed" && leftIndex && io.checkbox.checked){io.output((scaleValue((Math.sqrt(((rightIndex.x - rightWrist.x)**2)+((rightIndex.y - rightWrist.y)**2))), [0.1, 0.4], [1, 0])))};
+    if(io.input.value === "indexDistance" && leftIndex && rightIndex && io.checkbox.checked){io.output((Math.sqrt(((leftIndex.x - rightIndex.x)**2)+((leftIndex.y - rightIndex.y)**2))))};
+  });  
 };
 
 //Calculate FPS
