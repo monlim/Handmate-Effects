@@ -9,7 +9,7 @@ function toggleControl(){
     controlPanel.style.display = "none";
     controlButton.innerHTML = "Show controls";
   }     
-};
+}
 
 //Get HTML elements
 const videoElement = document.getElementsByClassName('input_video')[0];
@@ -247,7 +247,7 @@ function setAudio(files) {
   player.loop = true;
   if (fileAudioEffects.checked){player.chain(pitchShift, dist, reverb, pingPong, gainNode);
     } else {player.connect(gainNode)};
-};
+}
 
 playFile.addEventListener("change", function(){
   if (player) {
@@ -347,42 +347,42 @@ function scaleValue(value, from, to) {
   let scale = (to[1] - to[0]) / (from[1] - from[0]);
   let capped = Math.min(from[1], Math.max(from[0], value)) - from[0];
   return (capped * scale + to[0]);
-};
+}
 
 function gainControl(controlValue) {
   gainNode.gain.rampTo((clamp(controlValue, 0, 1)), 0.05);  
-};
+}
 
 function playerControl(controlValue) {
   if (player2) {player2.playbackRate = (scaleValue(controlValue, [0, 1], [4, 0.2]))};
   if (player) {player.playbackRate = scaleValue(controlValue, [0, 1], [4, 0.2])};  
-};
+}
 
 function pitchShiftControl(controlValue) {
   pitchShift.pitch = (scaleValue(controlValue, [0, 1], [-12, 12]));
-};
+}
 
 function pingPongControl(controlValue) {
   pingPong.wet.value = clamp(controlValue, 0, 1);
   pingPongWet.value = pingPong.wet.value.toFixed(2);
   pingPongWetValue.innerHTML = pingPong.wet.value.toFixed(2);
-};
+}
 
 function distortionControl(controlValue) {
   dist.wet.value = clamp(controlValue, 0, 1);
   distWet.value = dist.wet.value.toFixed(2);
   distWetValue.innerHTML = dist.wet.value.toFixed(2);
-};
+}
 
 function reverbControl(controlValue) {
   reverb.wet.value = clamp(controlValue, 0, 1);
   reverbWet.value = reverb.wet.value.toFixed(2);
   reverbWetValue.innerHTML = reverb.wet.value.toFixed(2);
-};
+}
 
 
 let threshold  = 70;
-function now () {return new Date().getTime()};
+function now () {return new Date().getTime()}
 let gesture_io = [
   {input:pitchShiftAutomaticInput,  output:pitchShiftCheck, status:0, lastAct:0, lastRelease:0},
   {input:distAutomaticInput,        output:distortionCheck, status:0, lastAct:0, lastRelease:0},
@@ -411,7 +411,7 @@ function myGesture(leftGesture, rightGesture){
       }
     }
   });
-};
+}
 
 //sound engine
 let effects_io = [
@@ -440,7 +440,7 @@ function myMusic(leftIndex, leftWrist, rightIndex, rightWrist){
     if(io.input.value === "rightClosed" && leftIndex && io.checkbox.checked){io.output((scaleValue((Math.sqrt(((rightIndex.x - rightWrist.x)**2)+((rightIndex.y - rightWrist.y)**2))), [0.1, 0.4], [1, 0])))};
     if(io.input.value === "indexDistance" && leftIndex && rightIndex && io.checkbox.checked){io.output((Math.sqrt(((leftIndex.x - rightIndex.x)**2)+((leftIndex.y - rightIndex.y)**2))))};
   });  
-};
+}
 
 //Calculate FPS
 let counter = 0;
@@ -504,7 +504,7 @@ function onResults(results) {
   myGesture(leftGesture, rightGesture);
   };
   };
-};
+}
 
 //Toggle selfie view
 selfie.addEventListener('change', function() {
@@ -562,7 +562,7 @@ function gotDevices(deviceInfos) {
       select.value = values[selectorIndex];
     }
   });
-};
+}
 
 navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
 
